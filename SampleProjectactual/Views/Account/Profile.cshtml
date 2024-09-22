@@ -1,0 +1,44 @@
+﻿@model SampleProjectactual.Models.User
+
+@{
+    ViewData["Title"] = "Profile";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-8">
+            <h2 class="mb-4">Welcome, @Model.name!</h2>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">User Information</h3>
+                </div>
+                <div class="panel-body">
+                    <dl class="dl-horizontal">
+                        <dt>Email:</dt>
+                        <dd>@Model.email</dd>
+
+                        <dt>Address:</dt>
+                        <dd>@Model.address.ToString()</dd>
+
+                        <!-- Add more user details here if necessary -->
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="panel panel-danger">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Account Actions</h3>
+                </div>
+                <div class="panel-body">
+                    <form asp-controller="Account" asp-action="Logout" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-danger btn-block">Log Out</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

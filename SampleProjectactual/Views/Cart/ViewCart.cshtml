@@ -1,0 +1,63 @@
+﻿@model SampleProjectactual.Models.Cart
+
+@{
+    ViewData["Title"] = "Your Cart";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container">
+    <h2>@ViewData["Title"]</h2>
+
+    <div class="row">
+        @if (Model.Items.Any())
+        {
+            <div class="col-md-12">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Items)
+                        {
+                            <tr>
+                                <td>@item.Product.name</td>
+                                <td>@item.Quantity</td>
+                                <td>@item.Product.price</td>
+                                <td>@(item.Quantity * item.Product.price)</td>
+                            </tr>
+                        }
+                        <tr>
+                            <td colspan="3"><strong>Total</strong></td>
+                            <td>
+                                @Model.Items.Sum(i => i.Quantity * i.Product.price)
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- Clear Cart Button -->
+                <form action="@Url.Action("ClearCart", "Cart")" method="post" onsubmit="return confirm('Are you sure you want to clear the cart?');">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">Clear Cart</button>
+                </form>
+                <br />
+
+                <!-- Buy Now Button -->
+                <form action="@Url.Action("Payment", "Order")" method="get" class="mt-3">
+                    <button type="submit" class="btn btn-success">Buy Now</button>
+                </form>
+            </div>
+        }
+        else
+        {
+            <div class="col-md-12">
+                <p>Your cart is empty.</p>
+            </div>
+        }
+    </div>
+</div>

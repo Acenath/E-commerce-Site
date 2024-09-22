@@ -1,0 +1,58 @@
+﻿@model IEnumerable<SampleProjectactual.Models.Product>
+
+@{
+    ViewData["Title"] = "Product List";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container">
+    <h2>@ViewData["Title"]</h2>
+
+    <div class="row">
+        @foreach (var product in Model)
+        {
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title">@product.name</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">@product.description</p>
+                        <p class="card-text">Price: @product.price</p>
+                        <p class="card-text">Available Quantity: <span id="quantity-@product.pid">@product.quantity</span></p>
+                        <form action="@Url.Action("AddToCart", "Cart")" method="post">
+                            <input type="hidden" name="productId" value="@product.pid" />
+                            <button type="submit" class="btn btn-primary" id="add-to-cart-@product.pid">Add to Cart</button>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('form').on('submit', function (event) {
+                event.preventDefault();
+                var form = $(this);
+                var productId = form.find('input[name="productId"]').val();
+                var quantityElement = $('#quantity-' + productId);
+                var currentQuantity = parseInt(quantityElement.text(), 10);
+
+                // Prevent updating if quantity is zero
+                if (currentQuantity > 0) {
+                    $.post(form.attr('action'), form.serialize(), function () {
+                        var newQuantity = currentQuantity - 1;
+                        quantityElement.text(newQuantity);
+                    });
+                }
+            });
+        });
+    </script>
+}
+
+}

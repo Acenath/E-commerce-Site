@@ -1,0 +1,21 @@
+﻿@{
+    ViewData["Title"] = "Confirmation";
+    var successMessage = Model as string;
+}
+
+<h2>Order Confirmation</h2>
+
+@if (!string.IsNullOrEmpty(successMessage))
+{
+    <div class="alert alert-success">
+        @successMessage
+    </div>
+}
+else
+{
+    <div class="alert alert-info">
+        Your order has been processed. We will send you a confirmation email shortly.
+    </div>
+}
+
+<a href="@Url.Action("Index", "Home")" class="btn btn-primary">Return to Home</a>

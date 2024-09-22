@@ -1,0 +1,120 @@
+﻿@model SampleProjectactual.Models.PaymentViewModel
+@{
+    ViewData["Title"] = "Payment";
+}
+
+<h2>Payment</h2>
+
+<div class="row">
+    <div class="col-md-8">
+        <form id="payment-form" asp-action="ProcessPayment" method="post">
+            @Html.AntiForgeryToken()
+
+            <!-- Card Number Field -->
+            <div class="form-group">
+                <label for="card-number">Card Number</label>
+                <div id="card-number" class="form-control">
+                    <!-- Stripe Card Number Element will be inserted here. -->
+                </div>
+            </div>
+
+            <!-- Expiration Date and CVV -->
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="card-expiry">Expiration Date</label>
+                    <div id="card-expiry" class="form-control">
+                        <!-- Stripe Card Expiry Element will be inserted here. -->
+                    </div>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="card-cvc">CVC</label>
+                    <div id="card-cvc" class="form-control">
+                        <!-- Stripe Card CVC Element will be inserted here. -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card Errors -->
+            <div id="card-errors" role="alert" class="text-danger"></div>
+
+            <input type="hidden" id="stripeToken" name="CardToken" />
+
+            <!-- Display Total Amount -->
+            <div class="form-group">
+                <label>Total Amount:</label>
+                <span>@Model.TotalAmount.ToString("C")</span>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-primary btn-block">Pay @Model.TotalAmount.ToString("C")</button>
+        </form>
+    </div>
+</div>
+
+<!-- Stripe.js -->
+<script src="https://js.stripe.com/v3/"></script>
+
+<script>
+    var stripe = Stripe('@Model.StripePublishableKey');
+    var elements = stripe.elements();
+
+    // Custom styling
+    var style = {
+        base: {
+            color: '#32325d',
+            fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+            fontSmoothing: 'antialiased',
+            fontSize: '16px',
+            '::placeholder': {
+                color: '#aab7c4'
+            }
+        },
+        invalid: {
+            color: '#fa755a',
+            iconColor: '#fa755a'
+        }
+    };
+
+    // Create individual elements for card number, expiry, and CVC
+    var cardNumber = elements.create('cardNumber', { style: style });
+    var cardExpiry = elements.create('cardExpiry', { style: style });
+    var cardCvc = elements.create('cardCvc', { style: style });
+
+    // Mount each element to its respective div
+    cardNumber.mount('#card-number');
+    cardExpiry.mount('#card-expiry');
+    cardCvc.mount('#card-cvc');
+
+    // Handle real-time validation errors
+    function handleErrors(event) {
+        var displayError = document.getElementById('card-errors');
+        if (event.error) {
+            displayError.textContent = event.error.message;
+        } else {
+            displayError.textContent = '';
+        }
+    }
+
+    cardNumber.on('change', handleErrors);
+    cardExpiry.on('change', handleErrors);
+    cardCvc.on('change', handleErrors);
+
+    // Handle form submission
+    var form = document.getElementById('payment-form');
+    form.addEventListener('submit', function (event) {
+        event.preventDefault(); // Prevent the default form submission
+
+        stripe.createToken(cardNumber).then(function (result) {
+            if (result.error) {
+                var errorElement = document.getElementById('card-errors');
+                errorElement.textContent = result.error.message;
+            } else {
+                var hiddenInput = document.getElementById('stripeToken');
+                hiddenInput.value = result.token.id;
+
+                // Submit the form
+                form.submit();
+            }
+        });
+    });
+</script>
